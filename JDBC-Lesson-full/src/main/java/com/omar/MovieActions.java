@@ -3,10 +3,14 @@ package com.omar;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class MovieActions {
 
@@ -38,14 +42,40 @@ public class MovieActions {
 
     */
 
+
+
     String url = System.getenv("DB_URL");
     String username = System.getenv("DB_USER");
     String password = System.getenv("DB_PASSWORD");
 
 
-    config.setJdbcUrl(url);
-    config.setUsername(username);
-    config.setPassword(password);
+
+//        3. using the properties file
+    Properties properties = new Properties();
+
+    try (FileInputStream fileInputStream = new FileInputStream("src/main/resources/database.properties")) {
+        {
+            properties.load(fileInputStream);
+        }
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
+
+    String propertiesURL = properties.getProperty("db.url");
+    String propertiesUsername= properties.getProperty("db.username");
+    String propertiesPassword= properties.getProperty("db.password");
+
+    System.out.println(propertiesPassword);
+
+    System.out.println(propertiesUsername);
+    System.out.println(propertiesURL);
+//    config.setJdbcUrl(url);
+//    config.setUsername(username);
+//    config.setPassword(password);
+
+    config.setJdbcUrl(propertiesURL);
+    config.setUsername(propertiesUsername);
+    config.setPassword(propertiesPassword);
 
     
 
@@ -53,7 +83,9 @@ public class MovieActions {
         config.setMaximumPoolSize(10);
 
         dataSource = new HikariDataSource(config);
-    }
+
+
+}
 
 
 //    fetches a connection from the connection pool
